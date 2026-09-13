@@ -710,11 +710,58 @@ But still messed up a bit, so separate out the FOR/NEXT
 224 NEXT I
 ```
 
+### Ship status
+
+```none
+130 VTAB= 1: HTAB= 1:PRINT "PORT ";L$(LOCAT);: HTAB= 28:PRINT M$(M);". ";DA+1;",";Y
+140 VTAB= 2: INVERSE=1:PRINT "CASH ";: Q = C:GO SUB 1330: NORMAL=1:VTAB= 2:HTAB= 28:PRINT "GUNS ";G: VTAB= 3:PRINT "DEBT ";: Q = D:GO SUB 1330:VTAB= 3:HTAB= 28:PRINT "HOLD ";: Q = SH:GO SUB 1330
+```
+
+becomes
+
+
+```none
+130 VTAB= 1: HTAB= 1:PRINT "PORT ";L$(LOCAT);: HTAB= 28:PRINT TO 28; M$(M);". ";DA+1;",";Y
+140 VTAB= 2: INVERSE=1:PRINT "CASH ";: Q = C:GO SUB 1330: NORMAL=1:VTAB= 2:HTAB= 28:PRINT TO 28; "GUNS ";G: VTAB= 3:PRINT "DEBT ";: Q = D:GO SUB 1330:VTAB= 3:HTAB= 28:PRINT TO 28;"HOLD ";: Q = SH:GO SUB 1330
+```
+
+But there is still the same issue as was had with the CP/M port, namely the big number routine, needs a `;`
+
+```none
+1330 IF ABS (Q) < 1E6 THEN PRINT INT (Q);: NORMAL=1:PRINT "   ": RETurn 
+...
+1335 PRINT INT (Q);Q$;: NORMAL=1:PRINT "      "
+```
+
+becomes
+
+```none
+1330 IF ABS (Q) < 1E6 THEN PRINT INT (Q);: NORMAL=1:PRINT "   ";: RETurn 
+...
+1335 PRINT INT (Q);Q$;: NORMAL=1:PRINT "      ";
+```
+
+But now additional blank PRINT is required to clear the line
+
+```none
+140 VTAB= 2: INVERSE=1:PRINT "CASH ";: Q = C:GO SUB 1330: NORMAL=1:VTAB= 2:HTAB= 28:PRINT TO 28; "GUNS ";G: VTAB= 3:PRINT "DEBT ";: Q = D:GO SUB 1330:VTAB= 3:HTAB= 28:PRINT TO 28;"HOLD ";: Q = SH:GO SUB 1330
+141 VTAB= 4: INVERSE=1:PRINT "GOODS     ABOARD SHIP    HONGKONG GODOWN":NORMAL=1
+```
+
+becomes
+
+```none
+140 PRINT:VTAB= 2: INVERSE=1:PRINT "CASH ";: Q = C:GO SUB 1330: NORMAL=1:VTAB= 2:HTAB= 28:PRINT TO 28; "GUNS ";G: VTAB= 3:PRINT "DEBT ";: Q = D:GO SUB 1330:VTAB= 3:HTAB= 28:PRINT TO 28;"HOLD ";: Q = SH:GO SUB 1330
+141 PRINT:VTAB= 4: INVERSE=1:PRINT "GOODS     ABOARD SHIP    HONGKONG GODOWN":NORMAL=1
+```
+
 ## TODO
 
  - Add lowercase - DONE!
  - Only Liverpool printed in destination of embark - DONE!
  - Market prices all on one line - DONE!
+ - Tidy ship status - DONE!
+ - Tidy cargo
  - Make 2 versions, scrolling, and full screen
  - how to full screen? `MODE`
  - How to PRINT AT?  `AT y,x:PRINT"HI"`
