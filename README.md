@@ -2,7 +2,7 @@
 
 ***Work in progress***
 
-Just about playable...
+Not playable, just about starts up...
 
 ## Preamble
 
@@ -17,14 +17,19 @@ The emulator, Q-EnuLator, has some issues too. The "try me" dialog tends to lock
 ### Main issues
 
  - Have to paste lines one or two at a time (no easy copy paste, nor text file input)
+   - You can modify the saved files (emulator microdrive mapped to local directory) directly, as they are in text format
  - Problem getting line entered, whilst avoiding "bad line" errors
  - Problem then getting it to run
  - Have to slowly delete a line, one character at a time, for a "bad line" error. Can not just discard the line with a single keystroke
- - Microdrives are slow! It takes almost as long as the Hobbit (8 minutes), to load!
+ - Microdrives are slow! Taipan takes almost as long as the Hobbit (8 minutes), to load! Saving is relaively quick, however.
  - No ordering on `dir` output
  - No indication of where, in a multi-statement line, an error exists
  - Undeclared/undefined variables contain '*' instead of'0', causes many "error in expression" errors
  - Annoying F1 selection required *every time* the QL boots
+
+## Links
+
+ - [QL vs Spectrum](https://misterspectrum.com/QLSuperBASIC.html)
 
 ## Issues
 
@@ -46,6 +51,14 @@ should be
 790 IF K = 1 THEN RETURN
 791 X = 50 + INT ( RND (1) * 100) + 1: GN = INT ( RND (1) * 3) +1:XP = (X + (GN * 50)) * 100:IF C < XP OR RND (1) < .75 THEN GOTO 805
 792 GOSUB 1340: VTAB= 12:PRINT " A BROKER OFFERS TO TAKE YOUR": PRINT "VESSEL IN TRADE FOR ONE WITH":PRINT GN + G;" GUNS & ";X + MW;" CAPACITY"
+```
+
+#### Reserved variables?
+
+```none
+ET
+LOC
+LOCA
 ```
 
 ## Notes 
@@ -147,6 +160,8 @@ Search and replace with a `=1` suffix.
 #### No `PRINT TAB()`
 
 Use `PRINT TO`
+
+Even ZXSpectrum had `TAB` and `AT`!
 
 ####  FOR in line 30
 
@@ -490,10 +505,135 @@ Also `TR` not set
 880 GP(I) = INT (GP(I) * ( RND * 4) + .5)
 ```
 
-Dunno???
+Due to function of RND(1)
+
+```none
+860 I = INT ( RND(1)  * 6)
+```
+
+becomes
+
+```none
+860 I = INT ( RND  * 6)
+```
+
+Note: I did a search and replace: RND(1) -> RND
 
 
 #### More `LOCAT`
 
 Lines 820-850
 
+
+#### 750 - error in expression
+750 GOSUB 60:IF ASC (X$) > 47 AND ASC (X$) < 58 AND VAL (X$) <> L THEN PO = VAL (X$) : GOTO 980
+
+#### `VAL()` not required
+
+```none
+750 GO SUB 60:IF ASC (X$) > 47 AND ASC (X$) < 58 AND VAL (X$) <> LOCAT THEN PO = X$ : GO TO 980
+```
+becomes
+
+```none
+750 GO SUB 60:IF ASC (X$) > 47 AND ASC (X$) < 58 AND X$ <> LOCAT THEN PO = X$ : GO TO 980
+```
+
+#### `ASC()` not supported?
+
+Again line 750... use `CODE`
+
+#### 980 - error in expression
+
+LOCAT
+
+```none
+980 HOME=1: PRINT:INVERSE=1:PRINT A$;:NORMAL=1:PRINT " SEA VOYAGE FROM ";L$(LOCAT) : PRINT " TO ";L$(PO) :INVERSE=1: PRINT A$: NORMAL=1: GO SUB 780: HOME=1:ET = ABS (LO(LOCAT) - LO(PO))
+```
+
+There seems to be a problem with `ET = ABS (LO(LOCAT) - LO(PO))`, but `EST = ABS (LO(LOCAT) - LO(PO))` or `RT = ABS (LO(LOCAT) - LO(PO))` are fine!
+
+Change to EST
+
+```none
+980 HOME=1: PRINT:INVERSE=1:PRINT A$;:NORMAL=1:PRINT " SEA VOYAGE FROM ";L$(LOCAT) : PRINT " TO ";L$(PO) :INVERSE=1: PRINT A$: NORMAL=1: GO SUB 780: HOME=1:ET = ABS (LO(LOCAT) - LO(PO))
+```
+
+#### 160 - error in expr
+
+160 EST = INT (EST + (EST * RND / 3)): GT = GT +EST:D = D + INT (D * (EST / 360)):JD = JD +EST:IF JD > 360 THEN JD = JD-360: Y=Y+1
+
+
+JD is not set.
+
+```none
+12 LOCAT = 0:DA=0:M=0:K=0:TR=0:JD=0
+```
+
+### 5350 - error in expr
+
+```none
+5350 VTAB= B+1: HTAB=40-A:PRINT LEFT$ (CH$(B),A),;" ";
+```
+
+```none
+5350 VTAB= B+1: HTAB=40-A:PRINT CH$(B)(TO A),;" ";
+```
+
+But now gives "out of range" error: add `1 TO`
+
+```none
+5350 VTAB= B+1: HTAB=40-A:PRINT CH$(B)(1 TO A),;" ";
+```
+
+> Even more oddly, except on SMS and Minerva, if a start descriptor is omitted, but an end descriptor specified, the index defaults to: 0 TO end_descriptor normally resulting in an error. (On SMS and Minerva this defaults to 1 TO end_descriptor).
+
+Later still get out of range. Change loop index to length of string
+
+```none
+5320 FOR A = 1 TO 30
+```
+
+to
+ 
+```none
+5320 FOR A = 1 TO 24
+```
+
+
+#### 1001 - error in exp
+
+LOCAT
+
+```none
+1001 VTAB= 14:PRINT " ANY PORT IN A STORM,                 ": GO SUB 760:PO = INT ( RND * 10) :IF PO = LOCAT THEN VTAB= 14: PRINT" WE CAN'T MAKE IT,                      TAIPAN,            ": SR = 0:GO TO 1090
+```
+
+#### 5470 `LEFT$` and `MID$`
+
+Use `TO`
+
+```none
+5740 CH$(I1) = LEFT$ (CH$(I1),I - 1) + " " + MID$ (CH$(I1) , I + 1, LEN (CH$(I1)))
+5740 CH$(I1) = CH$(I1)(1 TO I - 1) + " " + CH$(I1) (I + 1 TO LEN (CH$(I1)))
+```
+
+#### 5470 concatenation
+
+Use `&`
+
+```none
+5740 CH$(I1) = CH$(I1)(1 TO I - 1) + " " + CH$(I1) (I + 1 TO LEN (CH$(I1)))
+5740 CH$(I1) = CH$(I1)(1 TO I - 1) & " " & CH$(I1) (I + 1 TO LEN (CH$(I1)))
+```
+
+
+#### 6190
+
+6190 HTAB= 1: VTAB=B+1:PRINT RIGHT$ (CH$ (B) ,A) ;" "
+6190 HTAB= 1: VTAB=B+1:PRINT CH$ (B)(A TO LEN(CH$ (B))) ;" "
+
+## TODO
+
+ - Add lowercase - DONE!
+ - Only Liverpool printed in destination of embarl
