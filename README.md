@@ -14,6 +14,8 @@ I am disappointed to say this, but I think that this QL port was even more horri
 
 The emulator, Q-EnuLator, has some issues too. The "try me" dialog tends to lock up. Don't try to attach a drive before dismissing the "try me" dialog, it locks up. There doesn't seem to be a Github repo where to report issues.
 
+Note: <kbd>CTRL</kbd>+<kbd>SPACE</kbd> to `BREAK`
+
 ### Main issues
 
  - Have to paste lines one or two at a time (no easy copy paste, nor text file input)
@@ -26,6 +28,7 @@ The emulator, Q-EnuLator, has some issues too. The "try me" dialog tends to lock
  - No indication of where, in a multi-statement line, an error exists
  - Undeclared/undefined variables contain '*' instead of'0', causes many "error in expression" errors
  - Annoying F1 selection required *every time* the QL boots
+ - Substrings are not handled consistently
 
 ## Links
 
@@ -53,7 +56,10 @@ should be
 792 GOSUB 1340: VTAB= 12:PRINT " A BROKER OFFERS TO TAKE YOUR": PRINT "VESSEL IN TRADE FOR ONE WITH":PRINT GN + G;" GUNS & ";X + MW;" CAPACITY"
 ```
 
-#### Reserved variables?
+ - The destinations should be in two columns. However, Apple nor CP/M do. Nor BBC? TODO:Check this!!!
+
+
+#### Reserved variable names?
 
 ```none
 ET
@@ -630,10 +636,71 @@ Use `&`
 
 #### 6190
 
+```none
 6190 HTAB= 1: VTAB=B+1:PRINT RIGHT$ (CH$ (B) ,A) ;" "
 6190 HTAB= 1: VTAB=B+1:PRINT CH$ (B)(A TO LEN(CH$ (B))) ;" "
+```
+
+#### Fixing the destinations
+
+Only the last destination is printed, and only in one column, in te middle of the screen. Adding `TO` does not help.
+
+```none
+720 FOR I=0 TO 9 STEP 2: VTAB= (I / 2) + 4:PRINT A$:VTAB= (I / 2) + 4: PRINT I;" ";L$(I);: HTAB= 20:PRINT I + 1;" ";L$(I+1):NEXT I:PRINT
+720 FOR I=0 TO 9 STEP 2: VTAB= (I / 2) + 4:PRINT A$:VTAB= (I / 2) + 4: PRINT I;" ";L$(I);: HTAB= 20:PRINT TO 20;I + 1;" ";L$(I+1):NEXT I:PRINT
+```
+
+This snippet works:
+
+```none
+10 HOME=1: A$ = "                                        ":W$ = "ELDER BROTHER WU":LY$ = "LI YUEN":YS$ = "YANATO & SMYTHE":TC$ = "O, S, T, A, P, OR R"
+30 RESTORE :DIM M$(11,10),G$(5,10),AP(9,5),GG(5),H(9,5),L(9,5),GP(5),V(9),L$(9,10),SG(9):FOR I = 0 TO 9:READ L$(I):NEXT I:FOR I = 0 TO 11: READ M$(I):NEXT I:FOR I = 0 TO 5: READ G$(I):NEXT I
+
+65 REMark INITIALIZATION DATA (70-110)
+70 DATA 'HONGKONG', 'FOOCHOU', 'SHANGHAI', 'NAGASAKI', 'MANILA', 'SINGAPORE', 'BATAVIA', 'SAIGON', 'CALCUTTA', 'LIVERPOOL'
+80 DATA 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN'
+81 DATA 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
+90 DATA 'OPIUM', 'SILK', 'TEA', 'ARMS', 'PEPPER', 'RICE'
+
+720 FOR I=0 TO 9 STEP 2: VTAB= (I / 2) + 4:PRINT A$:VTAB= (I / 2) + 4: PRINT I;" ";L$(I);: HTAB= 20:PRINT TO 20;I + 1;" ";L$(I+1):NEXT I:PRINT
+```
+
+So why doesn't the program print the tabs during the game play? If you break after the screen has been printed and the computer is waiting your response, and then you enter `GOTO 720`, on the "command line", then the table is displayed correctly!
+
+720 is for the records section. The ports of destination are displayed at 731. There is clearly an issue with the FOR on a different line from the rest of the block and next
+
+```none
+731 IF SH >= 0 THEN HOME=1: PRINT TO 11;:INVERSE=1:PRINT "EMBARKING":NORMAL=1:PRINT TO 9;"FROM " ;L$ (LOCAT) : INVERSE=1:PRINT A$:NORMAL=1:FOR I = 0 TO 9:IF LOCAT = I THEN NEXT I:GOTO 740
+732 IF LOCAT <> I THEN PRINT TO 10;I;" ";L$(I): NEXT I
+```
+
+becomes
+
+```none
+731 IF SH >= 0 THEN HOME=1: PRINT TO 11;:INVERSE=1:PRINT "EMBARKING":NORMAL=1:PRINT TO 9;"FROM " ;L$ (LOCAT) : INVERSE=1:PRINT A$:NORMAL=1:
+732 FOR I = 0 TO 9
+733 IF LOCAT = I THEN NEXT I:GOTO 740
+734 IF LOCAT <> I THEN PRINT TO 10;I;" ";L$(I)
+735 NEXT I
+```
 
 ## TODO
 
  - Add lowercase - DONE!
- - Only Liverpool printed in destination of embarl
+ - Only Liverpool printed in destination of embark - DONE!
+ - Market prices all on one line
+ - Make 2 versions, scrolling, and full screen
+ - how to full screen? `MODE`
+ - How to PRINT AT?  `AT y,x:PRINT"HI"`
+
+## Conclusion
+
+The QL platfomr and SuperBSIC are just being kept alive by mugs who bought the machine (years ago). By rights, it should have been consigned to the wastebin, years ago.
+
+Principle crimes:
+
+ - Sir Clive ruined the QL with a hasty release, thus ensuring that the BASIC was poorly crafted. 
+ - The use of the 68008, instead of a 68000 was clearly hamstringing itself from the outset, and...
+ - The microdrives were just ridiculous.
+
+Susequent splits in the firmware have just made matters worse (regarding compatability).
