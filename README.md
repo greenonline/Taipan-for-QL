@@ -2,7 +2,7 @@
 
 ***Work in progress***
 
-Not playable, just about starts up...
+Playable, just about...
 
 ## Preamble
 
@@ -684,18 +684,44 @@ becomes
 735 NEXT I
 ```
 
+### Market Prices
+
+All printed on one line, bunched up:
+
+```none
+220 GO SUB 790: GO SUB 1340:VTAB= 11:INVERSE=1:HTAB= 8:PRINT " ";L$(LOCAT);" MARKET PRICES ":NORMAL=1:PRINT A$:FOR I = 0 TO 4 STEP 2: VTAB= 13 + I / 2:HTAB= 1:PRINT G$(I);: HTAB= 10:PRINT GP(I) ;: HTAB= 21:PRINT G$(I + 1);
+221 HTAB= 30:PRINT GP(I + 1) :NEXT I
+```
+
+becomes
+
+```none
+220 GO SUB 790: GO SUB 1340:VTAB= 11:INVERSE=1:HTAB= 8:PRINT TO 8; " ";L$(LOCAT);" MARKET PRICES ":NORMAL=1:PRINT A$:FOR I = 0 TO 4 STEP 2: VTAB= 13 + I / 2:HTAB= 1:PRINT G$(I);: HTAB= 10:PRINT TO 10; GP(I);: HTAB= 21:PRINT TO 21; G$(I + 1);
+221 HTAB= 30:PRINT TO 30; GP(I + 1) :NEXT I
+```
+
+But still messed up a bit, so separate out the FOR/NEXT
+
+```none
+220 GO SUB 790: GO SUB 1340:VTAB= 11:INVERSE=1:HTAB= 8:PRINT TO 8; " ";L$(LOCAT);" MARKET PRICES ":NORMAL=1:PRINT A$
+221 FOR I = 0 TO 4 STEP 2
+222 VTAB= 13 + I / 2:HTAB= 1:PRINT G$(I);: HTAB= 10:PRINT TO 10; GP(I);: HTAB= 21:PRINT TO 21; G$(I + 1);
+223 HTAB= 30:PRINT TO 30; GP(I + 1) 
+224 NEXT I
+```
+
 ## TODO
 
  - Add lowercase - DONE!
  - Only Liverpool printed in destination of embark - DONE!
- - Market prices all on one line
+ - Market prices all on one line - DONE!
  - Make 2 versions, scrolling, and full screen
  - how to full screen? `MODE`
  - How to PRINT AT?  `AT y,x:PRINT"HI"`
 
 ## Conclusion
 
-The QL platfomr and SuperBSIC are just being kept alive by mugs who bought the machine (years ago). By rights, it should have been consigned to the wastebin, years ago.
+The QL platfomr and SuperBASIC are just being kept alive by mugs who bought the machine (years ago). By rights, it should have been consigned to the wastebin, years ago.
 
 Principle crimes:
 
