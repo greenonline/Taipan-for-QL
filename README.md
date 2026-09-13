@@ -2,7 +2,7 @@
 
 ***Work in progress***
 
-Not playable, just about starts up...
+Just about playable...
 
 ## Preamble
 
@@ -12,7 +12,7 @@ Funnily enough, I was tempted to purchase a QL for retro purposes, after having 
 
 I am disappointed to say this, but I think that this QL port was even more horrific than the god-awful MMBASIC port.  It took hours to get the splash screen right and days to get the `READ` statements to work.
 
-The emulator is pretty bad too. The "try me" dialog tends to lock up. Don't try to attach a drive before dismissing the "try me" dialog, it locks up.
+The emulator, Q-EnuLator, has some issues too. The "try me" dialog tends to lock up. Don't try to attach a drive before dismissing the "try me" dialog, it locks up. There doesn't seem to be a Github repo where to report issues.
 
 ### Main issues
 
@@ -24,6 +24,29 @@ The emulator is pretty bad too. The "try me" dialog tends to lock up. Don't try 
  - No ordering on `dir` output
  - No indication of where, in a multi-statement line, an error exists
  - Undeclared/undefined variables contain '*' instead of'0', causes many "error in expression" errors
+ - Annoying F1 selection required *every time* the QL boots
+
+## Issues
+
+ - Unassinged variables
+ - `K=1` in line 791 superfluous
+
+ 
+```none
+785 REM EVENTS SUBROUTINE (790-851)
+790 IF K = 1 THEN RETURN
+791 K=1:X = 50 + INT ( RND (1) * 100) + 1: GN = INT ( RND (1) * 3) +1:XP = (X + (GN * 50)) * 100:IF C < XP OR RND (1) < .75 THEN GOTO 805
+792 GOSUB 1340: VTAB= 12:PRINT " A BROKER OFFERS TO TAKE YOUR": PRINT "VESSEL IN TRADE FOR ONE WITH":PRINT GN + G;" GUNS & ";X + MW;" CAPACITY"
+```
+
+should be
+
+```none
+785 REM EVENTS SUBROUTINE (790-851)
+790 IF K = 1 THEN RETURN
+791 X = 50 + INT ( RND (1) * 100) + 1: GN = INT ( RND (1) * 3) +1:XP = (X + (GN * 50)) * 100:IF C < XP OR RND (1) < .75 THEN GOTO 805
+792 GOSUB 1340: VTAB= 12:PRINT " A BROKER OFFERS TO TAKE YOUR": PRINT "VESSEL IN TRADE FOR ONE WITH":PRINT GN + G;" GUNS & ";X + MW;" CAPACITY"
+```
 
 ## Notes 
 
@@ -374,3 +397,103 @@ Had to add a `DIM SG(9)` to line 30
 ```none
 30 RESTORE:DIM M$(11,10),G$(5,10),AP(9,5),GG(5),L(9,5),GP(5),V(9),L$(9,10),SG(9):FOR I = 0 TO 9:READ L$(I):NEXT I:FOR I = 0 TO 11: READ M$(I):NEXT I:FOR I = 0 TO 5: READ G$(I):NEXT I
 ```
+#### line 70, error in expression
+
+`k` has not been declared
+
+```none
+12 LOCAT = 0:DA=0:M=0:K=0
+```
+
+#### 190 - error in expression
+
+Using `LOCAT`
+```none
+190 FOR I = 0 TO 5:IF GP(I) > H(L,I) THEN H(L,I) = GP(I)
+```
+
+becomes
+
+```none
+190 FOR I = 0 TO 5:IF GP(I) > H(LOCAT,I) THEN H(LOCAT,I) = GP(I)
+```
+
+Also `H()` not declared:
+
+```none
+30 RESTORE:DIM M$(11,10),G$(5,10),AP(9,5),GG(5),H(9,5),L(9,5),GP(5),V(9),L$(9,10),SG(9):FOR I = 0 TO 9:READ L$(I):NEXT I:FOR I = 0 TO 11: READ M$(I):NEXT I:FOR I = 0 TO 5: READ G$(I):NEXT I
+```
+
+#### 880 - error in expression
+
+`RND` again
+```none
+880 GP(I) = INT (GP(I) * ( RND(1) * 4) + .5)
+```
+
+becomes
+
+```none
+880 GP(I) = INT (GP(I) * ( RND * 4) + .5)
+```
+
+#### 890 - error in expression
+
+Using `LOCAT`
+
+```none
+890 VTAB= 12:PRINT L$(LOCAT);" MARKET FORCES HAVE": PRINT "DRIVEN ";G$(I);" PRICES TO ";:PRINT GP(I);: PRINT "!";
+```
+
+becomes
+
+```none
+890 VTAB= 12:PRINT L$(LOCAT);" MARKET FORCES HAVE": PRINT "DRIVEN ";G$(I);" PRICES TO ";:PRINT GP(I);: PRINT "!";
+```
+
+
+### 200 - error in expression
+
+```none
+200 IF GP(I) < L(L,I) OR L(L,I)=0 THEN L(L,I)= GP (I)
+```
+
+becomes
+
+```none
+200 IF GP(I) < L(LOCAT,I) OR L(LOCAT,I)=0 THEN L(LOCAT,I)= GP (I)
+```
+
+#### 820 - error in expression
+
+LOCAT
+
+```none
+820 GOSUB 180: GOSUB 860: GOSUB 190:GOSUB 1340:DN = INT ((C / 2) * RND (1)):IF RND (1) > .8 AND TR = 0 AND LOCAT <> 0 THEN VTAB= 12:PRINT "A MESSENGER FROM ";LY$;" ASKS": PRINT "THAT YOU RETURN TO HONG KONG"
+```
+
+and RND
+
+```none
+820 GOSUB 180: GOSUB 860: GOSUB 190:GOSUB 1340:DN = INT ((C / 2) * RND):IF RND > .8 AND TR = 0 AND LOCAT <> 0 THEN VTAB= 12:PRINT "A MESSENGER FROM ";LY$;" ASKS": PRINT "THAT YOU RETURN TO HONG KONG"
+```
+
+Also `TR` not set
+
+```none
+12 LOCAT = 0:DA=0:M=0:K=0:TR=0
+```
+
+#### 880 - out of range
+
+```none
+880 GP(I) = INT (GP(I) * ( RND * 4) + .5)
+```
+
+Dunno???
+
+
+#### More `LOCAT`
+
+Lines 820-850
+
