@@ -1,5 +1,9 @@
 # Taipan for QL
 
+***Work in progress***
+
+Not playable, just about starts up...
+
 ## Preamble
 
 What a horrific port! I do not like entering programms into the QL at all. 
