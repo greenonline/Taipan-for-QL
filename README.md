@@ -873,7 +873,7 @@ does the trick!
 
 Just the `CHR$(133)` needs fixing, really. Find a block character in the QL character set? Is there one?
 
-### Printing cargo and mret prices together
+### Printing cargo and market prices together (for scrolling version)
 
 The main display is at line 120, which calls the cargo display at line 130, and then jump to 220.
 
@@ -986,6 +986,160 @@ No `VAL()`
 331 IF X = 2 AND X$ <> "A" THEN NUM = NUM$ 
 ```
 
+### Blank `PRINT` required in 130 (for scrolling version)
+
+Else "PORT" printed at the end of input line, when buying/selling (does not affect CP/M version)
+
+```none
+130 VTAB= 1: HTAB= 1:PRINT "PORT ";L$(LOCAT);: HTAB= 28:PRINT TO 28; M$(M);". ";DA+1;",";Y
+```
+
+becomes
+
+```none
+130 VTAB= 1: HTAB= 1:PRINT:PRINT "PORT ";L$(LOCAT);: HTAB= 28:PRINT TO 28; M$(M);". ";DA+1;",";Y
+```
+
+### Reprinting market prices after buy/sell (for scrolling version)
+
+There is an issue, which *could* be fixed by re-calling the prices display block (line 220) in line 230, just before the buy/sell prompt, but 220-224 is *not* a subroutine – it just runs into the buy/sell/leave/retire prompt (line 230):
+
+```none
+```
+
+So, lines 280, 290, 341 and 351 could call line 220, insted of 230, but then the events would also be called (as they are also called in the display market prices code, line 220):
+
+```none
+280 IF X=1 AND GP(X1) > C THEN VTAB= 18:PRINT "YOU CAN'T AFFORD ANY ";G$(X1);". ";: GO SUB 760:GO TO 230
+290 IF X = 2 AND SG(X1) < 1 THEN VTAB= 18: PRINT "YOU HAVE NO ";G$(X1); " ABOARD!      ";: GO SUB 760:GO TO 230
+...
+341 IF X = 1 AND NUM * GP(X1) <= C THEN SG(X1) = SG(X1) + NUM: SH=SH- NUM:C = C - GP(X1) * NUM:GO SUB 130: GO TO 230
+...
+351 SG(X1) = SG(X1) - NUM: SH = SH + NUM:C = C + (NUM * GP(X1) ) : GO SUB 130:GO TO 230
+```
+
+Need to split line 220
+
+```none
+220 GO SUB 790: GO SUB 1340:GOSUB 130: VTAB= 11:INVERSE=1:HTAB= 8:PRINT TO 8; " ";L$(LOCAT);" MARKET PRICES ":NORMAL=1:PRINT A$
+```
+
+to split out the events, as we don't really what to call them again – one lot of events is enough:
+
+```none
+220 GO SUB 790
+221 GO SUB 1340:GOSUB 130: VTAB= 11:INVERSE=1:HTAB= 8:PRINT TO 8; " ";L$(LOCAT);" MARKET PRICES ":NORMAL=1:PRINT A$
+```
+
+but there is already a line 221, that can't be shifted:
+
+```none
+221 FOR I = 0 TO 4 STEP 2
+222 VTAB= 13 + I / 2:HTAB= 1:PRINT G$(I);: HTAB= 10:PRINT TO 10; GP(I);: HTAB= 21:PRINT TO 21; G$(I + 1);
+223 HTAB= 30:PRINT TO 30; GP(I + 1) 
+224 NEXT I
+225 REMark MARKET MENU (230-244)
+```
+
+Re-arranging (once again, see **Market prices** above) the `FOR-NEXT` of market princes 220-224, on to one line,
+
+```none
+221 FOR I = 0 TO 4 STEP 2
+222 VTAB= 13 + I / 2:HTAB= 1:PRINT G$(I);: HTAB= 10:PRINT TO 10; GP(I);: HTAB= 21:PRINT TO 21; G$(I + 1);
+223 HTAB= 30:PRINT TO 30; GP(I + 1) 
+224 NEXT I
+```
+
+to 
+
+```none
+221 FOR I = 0 TO 4 STEP 2:VTAB= 13 + I / 2:HTAB= 1:PRINT G$(I);: HTAB= 10:PRINT TO 10; GP(I);: HTAB= 21:PRINT TO 21; G$(I + 1);:HTAB= 30:PRINT TO 30; GP(I + 1):NEXT I
+222
+223
+224
+```
+
+This makes room to re-organise further, and separate out the events, from the market prices on line 220, from
+
+```none
+217 REMark MARKET PRICES (220-221)
+220 GO SUB 790:GO SUB 1340:GOSUB 130: VTAB= 11:INVERSE=1:HTAB= 8:PRINT TO 8; " ";L$(LOCAT);" MARKET PRICES ":NORMAL=1:PRINT A$
+221 FOR I = 0 TO 4 STEP 2:VTAB= 13 + I / 2:HTAB= 1:PRINT G$(I);: HTAB= 10:PRINT TO 10; GP(I);: HTAB= 21:PRINT TO 21; G$(I + 1);:HTAB= 30:PRINT TO 30; GP(I + 1):NEXT I
+```
+
+to
+ 
+ 
+```none
+217 REMark MARKET PRICES (220-221)
+220 GO SUB 790
+221 GO SUB 1340:GOSUB 130: VTAB= 11:INVERSE=1:HTAB= 8:PRINT TO 8; " ";L$(LOCAT);" MARKET PRICES ":NORMAL=1:PRINT A$
+222 FOR I = 0 TO 4 STEP 2:VTAB= 13 + I / 2:HTAB= 1:PRINT G$(I);: HTAB= 10:PRINT TO 10; GP(I);: HTAB= 21:PRINT TO 21; G$(I + 1);:HTAB= 30:PRINT TO 30; GP(I + 1):NEXT I
+```
+
+Now change lines 280, 290, 341 and 351 to call line 221, instead of 230
+
+```none
+280 IF X=1 AND GP(X1) > C THEN VTAB= 18:PRINT "YOU CAN'T AFFORD ANY ";G$(X1);". ";: GO SUB 760:GO TO 221
+290 IF X = 2 AND SG(X1) < 1 THEN VTAB= 18: PRINT "YOU HAVE NO ";G$(X1); " ABOARD!      ";: GO SUB 760:GO TO 221
+...
+341 IF X = 1 AND NUM * GP(X1) <= C THEN SG(X1) = SG(X1) + NUM: SH=SH- NUM:C = C - GP(X1) * NUM:GO SUB 130: GO TO 221
+...
+351 SG(X1) = SG(X1) - NUM: SH = SH + NUM:C = C + (NUM * GP(X1) ) : GO SUB 130:GO TO 221
+```
+
+That seems to work! And the cargo is also printed (for free) thanks tothe previous change in **Printing cargo and market prices together** above.
+
+TODO: The call to the cargo display in line 120, is now superfluous?
+
+### Remove superflous call to cargo display (for scrolling version)
+
+```none
+120 GO SUB 130: GO TO 220
+```
+
+becomes
+
+```none
+120 GO TO 220
+```
+
+However, other calls to 130 will also need to be deleted, in lines 341 and 351:
+
+```none
+341 IF X = 1 AND NUM * GP(X1) <= C THEN SG(X1) = SG(X1) + NUM: SH=SH- NUM:C = C - GP(X1) * NUM:GO SUB 130: GO TO 221
+...
+351 SG(X1) = SG(X1) - NUM: SH = SH + NUM:C = C + (NUM * GP(X1) ) : GO SUB 130:GO TO 221
+```
+
+
+becomes
+
+```none
+341 IF X = 1 AND NUM * GP(X1) <= C THEN SG(X1) = SG(X1) + NUM: SH=SH- NUM:C = C - GP(X1) * NUM:GO TO 221
+...
+351 SG(X1) = SG(X1) - NUM: SH = SH + NUM:C = C + (NUM * GP(X1) ) : GO TO 221
+```
+
+### Empty sting on "How muchxxx?"
+
+Note: The Apple II version just returns to the buy/sell menu, `VAL("") == 0`
+
+The lack of a `VAL()`, and the `NUM=NUM$` fils for an empty string. Need additional logic to check for empty string and set to 0?
+
+```none
+300 VTAB= 18: PRINT A$;:VTAB= 18:PRINT T$;" HOW MUCH ";G$(X1);: PRINT "? ";:NUM$ = "":NUM = 0:GO SUB 310:GO TO 320
+```
+
+becomes
+
+```none
+300 VTAB= 18: PRINT A$;:VTAB= 18:PRINT T$;" HOW MUCH ";G$(X1);: PRINT "? ";:NUM$ = "":NUM = 0:GO SUB 310
+301 IF NUM$="" THEN NUM$="0"
+302 GO TO 320
+```
+
+
 ## TODO
 
  - Add lowercase - DONE!
@@ -998,7 +1152,12 @@ No `VAL()`
  - how to full screen? `MODE`
  - How to PRINT AT?  `AT y,x:PRINT"HI"`
  - As per CP/M version, need to draw cargo and market prices together – or redraw cargo, before market prices (after any: price shock; temple donation; others?; etc.) - DONE!
- - The market prices need to be redisplayed after buying and selling?
+ - The market prices need to be redisplayed after buying and selling - DONE!
+ - The call to the cargo display in line 120, is now superfluous? - DONE!
+ - Enter key on empty string in number scooper causes error - DONE!
+   - The Apple II version just returns to the buy/sell menu, `VAL("") == 0`
+ - Delete key does not work in number scooper
+ - Cursor does not work in number scooper
 
 ## Conclusion
 
