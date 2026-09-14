@@ -1120,9 +1120,10 @@ Now change lines 280, 290, 341 and 351 to call line 221, instead of 230
 
 That seems to work! And the cargo is also printed (for free) thanks to the previous change in **Printing cargo and market prices together** above.
 
-TODO: The call to the cargo display in line 120, is now superfluous?
 
 ### Remove superfluous call to cargo display (for scrolling version)
+
+The call to the cargo display in line 120, is now superfluous, after the prvious change:
 
 ```none
 120 GO SUB 130: GO TO 220
@@ -1151,7 +1152,7 @@ becomes
 351 SG(X1) = SG(X1) - NUM: SH = SH + NUM:C = C + (NUM * GP(X1) ) : GO TO 221
 ```
 
-### Empty sting on "How much xxx?"
+### Empty string on "How much xxx?"
 
 Note: The Apple II version just returns to the buy/sell menu, `VAL("") == 0`
 
