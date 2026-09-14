@@ -158,11 +158,13 @@ Search and replace with a `=1` suffix.
 
 `FLASH` is an accepted keyword and need to be either `FLASH 1` or `FLASH 0`.
 
+Yes, they *could* be deleted, as superfluous to requirements, *and* they increase memory requirements ever so slightly, but they are useful to keep around as "original formatting markers" for future formatting improvements, that should be made in order for the output to match that of the Apple II original.
 
 #### Set `VTAB` and `HTAB` to be variables
 
 Search and replace with a `=1` suffix.
 
+Likewise, they *could* be deleted, as superfluous to requirements, *and* they increase memory requirements ever so slightly, but they are useful to keep around as "original formatting markers" for future formatting improvements, that should be made in order for the output to match that of the Apple II original.
 
 #### No `PRINT TAB()`
 
@@ -831,7 +833,7 @@ With line 1321 reinstated, then the output is fine, when manually setting `I`:
 
 [![OK manual][3]][3]
 
-TODO: Remove the `A$`, blank line, just use a blank `PRINT` instead..? Nope! The `A$` is only printer *after* the table... so what is causing the blank lines? Is it the restricted screen width?
+TODO: Remove the `A$`, blank line, just use a blank `PRINT` instead..? Nope! The `A$` is only printer *after* the table... so what is causing the blank lines? Is it the restricted screen width? It turned out that the blank lines dissapeared when the `FOR-NEXT` loop was split out, see below.
 
 So, if manually setting `I` works fine, then maybe it is another `FOR-NEXT` multi-statement line issue that needs to be broken out into individual lines again – as per lines 220/221 (market prices), and lines 731/732 (embarking destinations)
 
@@ -863,7 +865,8 @@ does the trick!
  - Only Liverpool printed in destination of embark - DONE!
  - Market prices all on one line - DONE!
  - Tidy ship status - DONE!
- - Tidy cargo
+ - Tidy cargo - DONE!
+ - Change or remove the column character (133)
  - Make 2 versions, scrolling, and full screen
  - how to full screen? `MODE`
  - How to PRINT AT?  `AT y,x:PRINT"HI"`
