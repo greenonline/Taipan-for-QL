@@ -873,6 +873,27 @@ does the trick!
 
 Just the `CHR$(133)` needs fixing, really. Find a block character in the QL character set? Is there one?
 
+### Printing cargo and mret prices together
+
+The main display is at line 120, which calls the cargo display at line 130, and then jump to 220.
+
+220 displays the market prices, but before doing so, jumps to events (including temple donation):
+
+```none
+220 GO SUB 790: GO SUB 1340:VTAB= 11:INVERSE=1:HTAB= 8:PRINT TO 8; " ";L$(LOCAT);" MARKET PRICES ":NORMAL=1:PRINT A$
+```
+
+The line needs to be changed so that the cargo display is called (again) just before the market prices. 
+
+So, line 220 becomes
+
+```none
+220 GO SUB 790: GO SUB 1340:GOSUB 130: VTAB= 11:INVERSE=1:HTAB= 8:PRINT TO 8; " ";L$(LOCAT);" MARKET PRICES ":NORMAL=1:PRINT A$
+```
+
+Perfect!
+
+[![Cargo and market prices together][5]][5]
 
 ## TODO
 
@@ -885,6 +906,7 @@ Just the `CHR$(133)` needs fixing, really. Find a block character in the QL char
  - Make 2 versions, scrolling, and full screen
  - how to full screen? `MODE`
  - How to PRINT AT?  `AT y,x:PRINT"HI"`
+ - As per CP/M version, need to draw cargo and market prices together – or redraw cargo, before market prices (after any: price shock; temple donation; others?; etc.)
 
 ## Conclusion
 
@@ -906,6 +928,7 @@ Subsequent splits in the firmware have just made matters worse (regarding compat
   [2]: xtras/images/cargotest_manual_spurious0_output.png "Spurious 0"
   [3]: xtras/images/cargotest_manual_output.png "OK manual"
   [4]: xtras/images/cargotest_final_fix_output.png "Final fix"
+  [5]: xtras/images/taipan_cargo_market.png "Cargo and market prices together"
     
     
     
