@@ -89,28 +89,38 @@ LOCA
 
 Line 40 bad
 
+```none
 40 FOR I = 0 TO 9: FOR J = 0 TO 5:READ AP(I,J):AP(I,J) = AP(I,J) * 6 ^ (5 - J): NEXT J ,I: GOSUB 180
+```
 
 Two `NEXT` statements:
 
+```none
 40 FOR I = 0 TO 9: FOR J = 0 TO 5:READ AP(I,J):AP(I,J) = AP(I,J) * 6 ^ (5 - J): NEXT J: NEXT I: GOSUB 180
+```
 
 #### No `THEN <line number>`
 
+```none
 61 IF PEEK ( -16384) < 128 THEN 61
 61 IF PEEK ( -16384) < 128 THEN GOTO 61
+```
 
 #### More spaces
 
+```none
 161 IFJD<1THENJD=1
 
 161 IF JD<1THEN JD=1
+```
 
 #### No space between < and = in <=
 
+```none
 341 IF X = 1 AND NUM * GP(X1) < = C THEN SG(X1) = SG(X1) + NUM: SH=SH- NUM:C = C - GP(X1) * NUM:GOSUB 130: GOTO 230
 
 341 IF X = 1 AND NUM * GP(X1) <= C THEN SG(X1) = SG(X1) + NUM: SH=SH- NUM:C = C - GP(X1) * NUM:GOSUB 130: GOTO 230
+```
 
 Also line 431, 461, 561, 1140
 
@@ -125,16 +135,19 @@ In quotes, need semicolon
 
 #### More spaces everywhere!
 
+```none
 720 FORI=0TO9STEP2: VTAB= (I / 2) + 4:PRINT A$:VTAB= (I / 2) + 4: PRINT I;" ";L$(I);: HTAB= 20:PRINT I + 1;" ";L$(I+1):NEXT I:PRINT
 
 720 FOR I=0 TO 9 STEP 2: VTAB= (I / 2) + 4:PRINT A$:VTAB= (I / 2) + 4: PRINT I;" ";L$(I);: HTAB= 20:PRINT I + 1;" ";L$(I+1):NEXT I:PRINT
+```
 
 #### Must have space after IF, as well as around AND
 
+```none
 850 IF(TR=0ANDL=0) OR X$ = "Y" AND L = 0 THEN PRINT: PRINT A$;:GOSUB 780:VTAB= 13:PRINT A$:PRINT:PRINT
 
 850 IF (TR=0 AND L=0) OR X$ = "Y" AND L = 0 THEN PRINT: PRINT A$;:GOSUB 780:VTAB= 13:PRINT A$:PRINT:PRINT
-
+```
 
 #### `LOC$` is reserved?
 
@@ -288,6 +301,7 @@ gives `At line 181 error in expression`
 The problem is *probably* due to the fact that `L` is never set (a known Apple II issue, which relies on undeclared variables defaulting to 0)
 
 However, adding the line 
+
 ```none
 12 L = 0
 ```
@@ -298,37 +312,47 @@ Maybe can not have `L(9,5)` and `L`? No:
 
 Fails, "At line 10 bad name"
 
+```none
 10 L=0
 20 DIM L(9,5)
 30 PRINT L
+```
 
 Likewise,
- 
+
+```none
 10 K=0
 20 DIM K(9,5)
 30 PRINT K
+```
 
 This is OK:
 
+```none
 10 LO=0
 20 DIM L(9,5)
 30 PRINT LO
+```
 
 But this gives "At line 10 not implemented":
 
+```none
 10 L=0
 20 DIM LO(9,5)
 30 PRINT L
-
+```
 
 However, line 50 in TAIPAN.BAS already has a LO() array, that is missing a DIM
 
+```none
 50 FOR I = 0 TO 9:READ LO(I):NEXT I:D = 1000: Y=1860: GT = 1: C=400:MW = 50:SH = MW:SR = 1: G=1:V(0) = 1: GOSUB 5000: X$ ="":GOSUB 590: HOME=1:GOTO 120
+```
 
-becomes 
-
+becomes
+ 
+```none
 50 DIM LO(9): FOR I = 0 TO 9:READ LO(I):NEXT I:D = 1000: Y=1860: GT = 1: C=400:MW = 50:SH = MW:SR = 1: G=1:V(0) = 1: GOSUB 5000: X$ ="":GOSUB 590: HOME=1:GOTO 120
-
+```
 
 Note:
 
@@ -464,6 +488,7 @@ Also `H()` not declared:
 #### 880 - error in expression
 
 `RND` again
+
 ```none
 880 GP(I) = INT (GP(I) * ( RND(1) * 4) + .5)
 ```
@@ -548,7 +573,10 @@ Lines 820-850
 
 
 #### 750 - error in expression
+
+```none
 750 GOSUB 60:IF ASC (X$) > 47 AND ASC (X$) < 58 AND VAL (X$) <> L THEN PO = VAL (X$) : GOTO 980
+```
 
 #### `VAL()` not required
 
@@ -583,8 +611,9 @@ Change to EST
 
 #### 160 - error in expression
 
+```none
 160 EST = INT (EST + (EST * RND / 3)): GT = GT +EST:D = D + INT (D * (EST / 360)):JD = JD +EST:IF JD > 360 THEN JD = JD-360: Y=Y+1
-
+```
 
 JD is not set.
 
