@@ -6,13 +6,13 @@ Playable, just about...
 
 ## Preamble
 
-What a horrific port! I do not like entering programms into the QL at all. 
+What a horrific port! I do not like entering programs into the QL at all. 
 
-Funnily enough, I was tempted to purchase a QL for retro purposes, after having briefly owned one in the 80s (and clearly having very rose-tinted glasses), but after having ported this, I have no desire, whatesoever, to ever touch or see a QL ever again. No wonder the platform failed. Shockingly bad.
+Funnily enough, I was tempted to purchase a QL for retro purposes, after having briefly owned one in the 80s (and clearly having very rose-tinted glasses), but after having ported this, I have no desire, whatsoever, to ever touch or see a QL ever again. No wonder the platform failed. Shockingly bad.
 
 I am disappointed to say this, but I think that this QL port was even more horrific than the god-awful MMBASIC port.  It took hours to get the splash screen right and days to get the `READ` statements to work.
 
-The emulator, Q-EnuLator, has some issues too. The "try me" dialog tends to lock up. Don't try to attach a drive before dismissing the "try me" dialog, it locks up. There doesn't seem to be a Github repo where to report issues.
+The emulator, Q-EmuLator, has some issues too. The "try me" dialog tends to lock up. Don't try to attach a drive before dismissing the "try me" dialog, it locks up. There doesn't seem to be a Github repo where to report issues.
 
 Note: <kbd>CTRL</kbd>+<kbd>SPACE</kbd> to `BREAK`
 
@@ -23,7 +23,7 @@ Note: <kbd>CTRL</kbd>+<kbd>SPACE</kbd> to `BREAK`
  - Problem getting line entered, whilst avoiding "bad line" errors
  - Problem then getting it to run
  - Have to slowly delete a line, one character at a time, for a "bad line" error. Can not just discard the line with a single keystroke
- - Microdrives are slow! Taipan takes almost as long as the Hobbit (8 minutes), to load! Saving is relaively quick, however.
+ - Microdrives are slow! Taipan takes almost as long as the Hobbit (8 minutes), to load! Saving is relatively quick, however.
  - No ordering on `dir` output
  - No indication of where, in a multi-statement line, an error exists
  - Undeclared/undefined variables contain '*' instead of'0', causes many "error in expression" errors
@@ -36,7 +36,7 @@ Note: <kbd>CTRL</kbd>+<kbd>SPACE</kbd> to `BREAK`
 
 ## Issues
 
- - Unassinged variables
+ - Unassigned variables
  - `K=1` in line 791 superfluous
 
  
@@ -56,7 +56,8 @@ should be
 792 GOSUB 1340: VTAB= 12:PRINT " A BROKER OFFERS TO TAKE YOUR": PRINT "VESSEL IN TRADE FOR ONE WITH":PRINT GN + G;" GUNS & ";X + MW;" CAPACITY"
 ```
 
- - The destinations should be in two columns. However, Apple nor CP/M do. Nor BBC? TODO:Check this!!!
+ - The destinations should be in two columns. However, Apple nor CP/M do. Nor BBC? 
+   - Nope, destination is only two column for the records. Maybe two column should also be used for embarking?
 
 
 #### Reserved variable names?
@@ -133,7 +134,7 @@ Line 30 hacks
 
 #### L=0 is "not implemented"
 
-Similarly, trying to enter `l=0` gives a "not implmented" error, where as `k=0` works as one would expect.
+Similarly, trying to enter `l=0` gives a "not implemented" error, where as `k=0` works as one would expect.
 
 
 
@@ -257,7 +258,7 @@ Needed to fix line 30:
 
 Needs to be just `RND`
 
-Side note: when the program crahes at this point, `PRINT I` correctly shows `0`, but `PRINT L` scrolls a series of `0` up the screen!!!
+Side note: when the program crashes at this point, `PRINT I` correctly shows `0`, but `PRINT L` scrolls a series of `0` up the screen!!!
 
 Separating out:
 
@@ -565,7 +566,7 @@ Change to EST
 980 HOME=1: PRINT:INVERSE=1:PRINT A$;:NORMAL=1:PRINT " SEA VOYAGE FROM ";L$(LOCAT) : PRINT " TO ";L$(PO) :INVERSE=1: PRINT A$: NORMAL=1: GO SUB 780: HOME=1:ET = ABS (LO(LOCAT) - LO(PO))
 ```
 
-#### 160 - error in expr
+#### 160 - error in expression
 
 160 EST = INT (EST + (EST * RND / 3)): GT = GT +EST:D = D + INT (D * (EST / 360)):JD = JD +EST:IF JD > 360 THEN JD = JD-360: Y=Y+1
 
@@ -576,7 +577,7 @@ JD is not set.
 12 LOCAT = 0:DA=0:M=0:K=0:TR=0:JD=0
 ```
 
-### 5350 - error in expr
+### 5350 - error in expression
 
 ```none
 5350 VTAB= B+1: HTAB=40-A:PRINT LEFT$ (CH$(B),A),;" ";
@@ -607,7 +608,7 @@ to
 ```
 
 
-#### 1001 - error in exp
+#### 1001 - error in expression
 
 LOCAT
 
@@ -643,7 +644,7 @@ Use `&`
 
 #### Fixing the destinations
 
-Only the last destination is printed, and only in one column, in te middle of the screen. Adding `TO` does not help.
+Only the last destination is printed, and only in one column, in the middle of the screen. Adding `TO` does not help.
 
 ```none
 720 FOR I=0 TO 9 STEP 2: VTAB= (I / 2) + 4:PRINT A$:VTAB= (I / 2) + 4: PRINT I;" ";L$(I);: HTAB= 20:PRINT I + 1;" ";L$(I+1):NEXT I:PRINT
@@ -712,6 +713,8 @@ But still messed up a bit, so separate out the FOR/NEXT
 
 ### Ship status
 
+Adding `TO x` for the `HTAB` statements:
+
 ```none
 130 VTAB= 1: HTAB= 1:PRINT "PORT ";L$(LOCAT);: HTAB= 28:PRINT M$(M);". ";DA+1;",";Y
 140 VTAB= 2: INVERSE=1:PRINT "CASH ";: Q = C:GO SUB 1330: NORMAL=1:VTAB= 2:HTAB= 28:PRINT "GUNS ";G: VTAB= 3:PRINT "DEBT ";: Q = D:GO SUB 1330:VTAB= 3:HTAB= 28:PRINT "HOLD ";: Q = SH:GO SUB 1330
@@ -724,6 +727,10 @@ becomes
 130 VTAB= 1: HTAB= 1:PRINT "PORT ";L$(LOCAT);: HTAB= 28:PRINT TO 28; M$(M);". ";DA+1;",";Y
 140 VTAB= 2: INVERSE=1:PRINT "CASH ";: Q = C:GO SUB 1330: NORMAL=1:VTAB= 2:HTAB= 28:PRINT TO 28; "GUNS ";G: VTAB= 3:PRINT "DEBT ";: Q = D:GO SUB 1330:VTAB= 3:HTAB= 28:PRINT TO 28;"HOLD ";: Q = SH:GO SUB 1330
 ```
+
+#### Big number routine and subsequent "blank `PRINT`" statements and semicolons
+
+NOTE: These couple of changes are **only** required for versions that scroll, like the CP/M. Full screen versions would not require the changes to the big number routine, nor the blank PRINT statements and semicolons - as the info is *placed* using `AT`, `LOCATE` or whatever, and does not rely upon sequential printing.
 
 But there is still the same issue as was had with the CP/M port, namely the big number routine, needs a `;`
 
@@ -755,6 +762,101 @@ becomes
 141 PRINT:VTAB= 4: INVERSE=1:PRINT "GOODS     ABOARD SHIP    HONGKONG GODOWN":NORMAL=1
 ```
 
+### Cargo
+
+Need blank print and a semicolon
+
+```none
+150 FOR I = 0 TO 5: VTAB= 5 + I:PRINT G$(I):VTAB= 5 + I:HTAB= 11:PRINT TO 11; CHR$ (133);: Q=SG(I):GO SUB 1330:VTAB= 5 + I:HTAB= 26:PRINT TO 26;CHR$ (133);: Q = GG(I):GO SUB 1330: NEXT I: INVERSE=1: PRINT A$: NORMAL=1: RETurn 
+```
+
+becomes
+
+```none
+150 FOR I = 0 TO 5: VTAB= 5 + I:PRINT:PRINT G$(I);:VTAB= 5 + I:HTAB= 11:PRINT TO 11; CHR$ (133);: Q=SG(I):GO SUB 1330:VTAB= 5 + I:HTAB= 26:PRINT TO 26;CHR$ (133);: Q = GG(I):GO SUB 1330: NEXT I: INVERSE=1: PRINT A$: NORMAL=1: RETurn 
+```
+
+but still bad. It is as if the fix above for the big number routine, i.e. the semicolon, is not "respected", and ignored?
+
+[![Bad argo display][1]][1]
+
+Is it the `CHR$(133)` character? No, as these two lines do the same (the first prints "A" as a column, and the second has the column removed entirely):
+
+```none
+150 FOR I = 0 TO 5: VTAB= 5 + I:PRINT:PRINT G$(I);:VTAB= 5 + I:HTAB= 11:PRINT TO 11; CHR$ (65);: Q=SG(I):GOSUB 1330:VTAB= 5 + I:HTAB= 26:PRINT TO 26;CHR$ (65);: Q = GG(I):GOSUB 1330: NEXT I: INVERSE=1: PRINT A$: NORMAL=1: RETURN
+150 FOR I = 0 TO 5: VTAB= 5 + I:PRINT:PRINT G$(I);:VTAB= 5 + I:HTAB= 11:PRINT TO 11; : Q=SG(I):GOSUB 1330:VTAB= 5 + I:HTAB= 26:PRINT TO 26;: Q = GG(I):GOSUB 1330: NEXT I: INVERSE=1: PRINT A$: NORMAL=1: RETURN
+```
+
+***Still investigating***
+
+In an MRE, if the `FOR-NEXT` is removed, and manually setting `I`, then multi line gives a weird spurious `0` on a newline
+
+
+```none
+10 HOME=1: A$ = "                                        ":W$ = "ELDER BROTHER WU":LY$ = "LI YUEN":YS$ = "YANATO & SMYTHE":TC$ = "O, S, T, A, P, OR R"
+30 RESTORE :DIM M$(11,10),G$(5,10),AP(9,5),GG(5),H(9,5),L(9,5),GP(5),V(9),L$(9,10),SG(9):FOR I = 0 TO 9:READ L$(I):NEXT I:FOR I = 0 TO 11: READ M$(I):NEXT I:FOR I = 0 TO 5: READ G$(I):NEXT I
+
+65 REMark INITIALIZATION DATA (70-110)
+70 DATA 'HONGKONG', 'FOOCHOU', 'SHANGHAI', 'NAGASAKI', 'MANILA', 'SINGAPORE', 'BATAVIA', 'SAIGON', 'CALCUTTA', 'LIVERPOOL'
+80 DATA 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN'
+81 DATA 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
+90 DATA 'OPIUM', 'SILK', 'TEA', 'ARMS', 'PEPPER', 'RICE'
+
+141 PRINT:VTAB= 4: INVERSE=1:PRINT "GOODS     ABOARD SHIP    HONGKONG GODOWN":NORMAL=1
+150 FOR I = 0 TO 5: VTAB= 5 + I:PRINT:PRINT G$(I);:VTAB= 5 + I:HTAB= 11:PRINT TO 11; CHR$ (133);: Q=SG(I):GO SUB 1330:VTAB= 5 + I:HTAB= 26:PRINT TO 26;CHR$ (133);: Q = GG(I):GO SUB 1330: NEXT I: INVERSE=1: PRINT A$: NORMAL=1: RETurn 
+
+150 I = 0: VTAB= 5 + I:PRINT:PRINT G$(I);:VTAB= 5 + I:HTAB= 11:PRINT TO 11; CHR$ (133);: Q=SG(I):GO SUB 1330:VTAB= 5 + I:HTAB= 26:PRINT TO 26;CHR$ (133);: Q = GG(I):GO SUB 1330: INVERSE=1: PRINT A$: NORMAL=1 
+151 I = 1: VTAB= 5 + I:PRINT:PRINT G$(I);:VTAB= 5 + I:HTAB= 11:PRINT TO 11; CHR$ (133);: Q=SG(I):GO SUB 1330:VTAB= 5 + I:HTAB= 26:PRINT TO 26;CHR$ (133);: Q = GG(I):GO SUB 1330: INVERSE=1: PRINT A$: NORMAL=1 
+152 I = 2: VTAB= 5 + I:PRINT:PRINT G$(I);:VTAB= 5 + I:HTAB= 11:PRINT TO 11; CHR$ (133);: Q=SG(I):GO SUB 1330:VTAB= 5 + I:HTAB= 26:PRINT TO 26;CHR$ (133);: Q = GG(I):GO SUB 1330: INVERSE=1: PRINT A$: NORMAL=1 
+
+1325 REMark BIG NUMBER SUBROUTINE (1330-1370)
+1330 IF ABS (Q) < 1E6 THEN PRINT INT (Q);: NORMAL=1:PRINT "   ";: RETurn 
+1331 IF ABS (Q) < 1E9 THEN Q = Q / 1E6: Q$ = "MIL":GO TO 1335
+1332 IF ABS (Q) < 1E12 THEN Q = Q / 1E9: Q$ = "BIL":GO TO 1335
+1333 IF ABS (Q) >= 1E12 THEN Q = Q / 1E12: Q$ = "TRL":GO TO 1335
+1335 PRINT INT (Q);Q$;: NORMAL=1:PRINT "      ";
+1337 RETurn 
+```
+
+
+[![Spurious 0][2]][2]
+
+However this was only due to the missing `STOP` nd the program runs into the subroutine, without the subroutine having been called:
+
+```none
+1321 STOP
+```
+
+With line 1321 reinstated, then the output is fine, when manually setting `I`:
+
+[![OK manual][3]][3]
+
+TODO: Remove the `A$`, blank line, just use a blank `PRINT` instead..? Nope! The `A$` is only printer *after* the table... so what is causing the blank lines? Is it the restricted screen width?
+
+So, if manually setting `I` works fine, then maybe it is another `FOR-NEXT` multi-statement line issue that needs to be broken out into individual lines again – as per lines 220/221 (market prices), and lines 731/732 (embarking destinations)
+
+Indeed, it *does* fix it!
+
+Splitting up 
+
+```none
+150 FOR I = 0 TO 5: VTAB= 5 + I:PRINT:PRINT G$(I);:VTAB= 5 + I:HTAB= 11:PRINT TO 11; CHR$ (133);: Q=SG(I):GO SUB 1330:VTAB= 5 + I:HTAB= 26:PRINT TO 26;CHR$ (133);: Q = GG(I):GO SUB 1330: NEXT I: INVERSE=1: PRINT A$: NORMAL=1: RETurn 
+```
+
+to become:
+
+```none
+150 FOR I = 0 TO 5
+151 VTAB= 5 + I:PRINT:PRINT G$(I);:VTAB= 5 + I:HTAB= 11:PRINT TO 11; CHR$ (133);: Q=SG(I):GO SUB 1330:VTAB= 5 + I:HTAB= 26:PRINT TO 26;CHR$ (133);: Q = GG(I):GO SUB 1330
+153 NEXT I
+154 INVERSE=1: PRINT A$: NORMAL=1: RETurn 
+```
+
+does the trick!
+
+[![Final fix][4]][4]
+
+
 ## TODO
 
  - Add lowercase - DONE!
@@ -768,7 +870,7 @@ becomes
 
 ## Conclusion
 
-The QL platfomr and SuperBASIC are just being kept alive by mugs who bought the machine (years ago). By rights, it should have been consigned to the wastebin, years ago.
+The QL platform and SuperBASIC are just being kept alive by mugs who bought the machine (years ago). By rights, it should have been consigned to the waste bin, years ago.
 
 Principle crimes:
 
@@ -776,4 +878,17 @@ Principle crimes:
  - The use of the 68008, instead of a 68000 was clearly hamstringing itself from the outset, and...
  - The microdrives were just ridiculous.
 
-Susequent splits in the firmware have just made matters worse (regarding compatability).
+Subsequent splits in the firmware have just made matters worse (regarding compatibility).
+
+
+
+<!-- Images -->
+
+  [1]: xtras/images/cargotest_output.png "Bad cargo display"
+  [2]: xtras/images/cargotest_manual_spurious0_output.png "Spurious 0"
+  [3]: xtras/images/cargotest_manual_output.png "OK manual"
+  [4]: xtras/images/cargotest_final_fix_output.png "Final fix"
+    
+    
+    
+    
