@@ -18,17 +18,18 @@ Note: <kbd>CTRL</kbd>+<kbd>SPACE</kbd> to `BREAK`
 
 ### Main issues
 
- - Have to paste lines one or two at a time (no easy copy paste, nor text file input)
-   - You can modify the saved files (emulator microdrive mapped to local directory) directly, as they are in text format
+ - Have to paste lines one or two at a time (no easy copy paste, <strike>nor text file input</strike>), as the paste buffer is rather small
+   - Correction: You can modify the saved files (emulator microdrive mapped to local directory) directly, as they are in text format
  - Problem getting line entered, whilst avoiding "bad line" errors
  - Problem then getting it to run
  - Have to slowly delete a line, one character at a time, for a "bad line" error. Can not just discard the line with a single keystroke
  - Microdrives are slow! Taipan takes almost as long as the Hobbit (8 minutes), to load! Saving is relatively quick, however.
  - No ordering on `dir` output
  - No indication of where, in a multi-statement line, an error exists
- - Undeclared/undefined variables contain '*' instead of'0', causes many "error in expression" errors
+ - Undeclared/undefined variables contain '`*`' instead of '`0`', causes many "error in expression" errors
  - Annoying F1 selection required *every time* the QL boots
  - Substrings are not handled consistently
+ - Lack of `VAL()`, due to coercion used instead, and a subsequent poor handling of empty strings
 
 ## Links
 
@@ -865,7 +866,7 @@ In an MRE, if the `FOR-NEXT` is removed, and manually setting `I`, then multi li
 
 [![Spurious 0][2]][2]
 
-However this was only due to the missing `STOP` nd the program runs into the subroutine, without the subroutine having been called:
+However this was only due to the missing `STOP` and the program runs into the subroutine, without the subroutine having been called:
 
 ```none
 1321 STOP
@@ -875,7 +876,7 @@ With line 1321 reinstated, then the output is fine, when manually setting `I`:
 
 [![OK manual][3]][3]
 
-TODO: Remove the `A$`, blank line, just use a blank `PRINT` instead..? Nope! The `A$` is only printer *after* the table... so what is causing the blank lines? Is it the restricted screen width? It turned out that the blank lines dissapeared when the `FOR-NEXT` loop was split out, see below.
+TODO: Remove the `A$`, blank line, just use a blank `PRINT` instead..? Nope! The `A$` is only printer *after* the table... so what is causing the blank lines? Is it the restricted screen width? It turned out that the blank lines disappeared when the `FOR-NEXT` loop was split out, see below.
 
 So, if manually setting `I` works fine, then maybe it is another `FOR-NEXT` multi-statement line issue that needs to be broken out into individual lines again – as per lines 220/221 (market prices), and lines 731/732 (embarking destinations)
 
@@ -939,13 +940,13 @@ becomes
 
 But `NUM$` is empty, after a numeric keypress (when buying rice)..!
 
-The problem is that `FG` is not being set, in the preceeding line 310:
+The problem is that `FG` is not being set, in the preceding line 310:
 
 ```none
 310 PRINT CHR$ (8);: INVERSE=1:PRINT " ";:NORMAL=1:GO SUB 60:IF LEN (NUM$) > 0 AND CODE (X$) = 8 THEN PRINT X$;: PRINT" "; :PRINT X$;X$;:PRINT" ";:FG=1:IF LEN (NUM$) = 1 THEN NUM$ = "": FG = 0:GO TO 310
 ```
 
-There are too many `IF` statments that QL SuperBASIC does not like. Need to separate out, but there are no spare line numbers, as 311-314 are all used (although they *could* be moved down to 316-319.
+There are too many `IF` statements that QL SuperBASIC does not like. Need to separate out, but there are no spare line numbers, as 311-314 are all used (although they *could* be moved down to 316-319.
 
 ```none
 310 PRINT CHR$ (8);: INVERSE=1:PRINT " ";:NORMAL=1:GO SUB 60:IF LEN (NUM$) > 0 AND CODE (X$) = 8 THEN PRINT X$;: PRINT" "; :PRINT X$;X$;:PRINT" ";:FG=1:IF LEN (NUM$) = 1 THEN NUM$ = "": FG = 0:GO TO 310
@@ -1036,7 +1037,7 @@ There is an issue, which *could* be fixed by re-calling the prices display block
 ```none
 ```
 
-So, lines 280, 290, 341 and 351 could call line 220, insted of 230, but then the events would also be called (as they are also called in the display market prices code, line 220):
+So, lines 280, 290, 341 and 351 could call line 220, instead of 230, but then the events would also be called (as they are also called in the display market prices code, line 220):
 
 ```none
 280 IF X=1 AND GP(X1) > C THEN VTAB= 18:PRINT "YOU CAN'T AFFORD ANY ";G$(X1);". ";: GO SUB 760:GO TO 230
@@ -1117,11 +1118,11 @@ Now change lines 280, 290, 341 and 351 to call line 221, instead of 230
 351 SG(X1) = SG(X1) - NUM: SH = SH + NUM:C = C + (NUM * GP(X1) ) : GO SUB 130:GO TO 221
 ```
 
-That seems to work! And the cargo is also printed (for free) thanks tothe previous change in **Printing cargo and market prices together** above.
+That seems to work! And the cargo is also printed (for free) thanks to the previous change in **Printing cargo and market prices together** above.
 
 TODO: The call to the cargo display in line 120, is now superfluous?
 
-### Remove superflous call to cargo display (for scrolling version)
+### Remove superfluous call to cargo display (for scrolling version)
 
 ```none
 120 GO SUB 130: GO TO 220
@@ -1150,7 +1151,7 @@ becomes
 351 SG(X1) = SG(X1) - NUM: SH = SH + NUM:C = C + (NUM * GP(X1) ) : GO TO 221
 ```
 
-### Empty sting on "How muchxxx?"
+### Empty sting on "How much xxx?"
 
 Note: The Apple II version just returns to the buy/sell menu, `VAL("") == 0`
 
