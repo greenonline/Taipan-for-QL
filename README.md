@@ -895,6 +895,97 @@ Perfect!
 
 [![Cargo and market prices together][5]][5]
 
+### 311 - error in expression
+
+
+```none
+311 IF FG = 1 THEN NUM$ = LEFT$ (NUM$, LEN (NUM$) - 1):FG = 0: GO TO 310
+```
+
+becomes
+
+```none
+311 IF FG = 1 THEN NUM$ = NUM$ (1 TO LEN (NUM$) - 1):FG = 0: GO TO 310
+```
+
+But `NUM$` is empty, after a numeric keypress (when buying rice)..!
+
+The problem is that `FG` is not being set, in the preceeding line 310:
+
+```none
+310 PRINT CHR$ (8);: INVERSE=1:PRINT " ";:NORMAL=1:GO SUB 60:IF LEN (NUM$) > 0 AND CODE (X$) = 8 THEN PRINT X$;: PRINT" "; :PRINT X$;X$;:PRINT" ";:FG=1:IF LEN (NUM$) = 1 THEN NUM$ = "": FG = 0:GO TO 310
+```
+
+There are too many `IF` statments that QL SuperBASIC does not like. Need to separate out, but there are no spare line numbers, as 311-314 are all used (although they *could* be moved down to 316-319.
+
+```none
+310 PRINT CHR$ (8);: INVERSE=1:PRINT " ";:NORMAL=1:GO SUB 60:IF LEN (NUM$) > 0 AND CODE (X$) = 8 THEN PRINT X$;: PRINT" "; :PRINT X$;X$;:PRINT" ";:FG=1:IF LEN (NUM$) = 1 THEN NUM$ = "": FG = 0:GO TO 310
+
+311 IF FG = 1 THEN NUM$ = NUM$ (1 TO LEN (NUM$) - 1):FG = 0: GO TO 310
+
+312 IF CODE (X$) = 65 OR CODE (X$) = 13 THEN RETURN
+313 IF CODE (X$) < 48 OR CODE (X$) > 57 THEN 310
+314 NUM$ = NUM$ + X$: PRINT CHR$ (8);X$; : INVERSE=1:PRINT " ";:NORMAL=1: GOTO 310
+```
+
+becomes
+
+```none
+310 PRINT CHR$ (8);: INVERSE=1:PRINT " ";:NORMAL=1:GOSUB 60
+311 IF LEN (NUM$) > 0 AND CODE (X$) = 8 THEN PRINT X$;: PRINT" "; :PRINT X$;X$;:PRINT" ";:FG=1:IF LEN (NUM$) = 1 THEN NUM$ = "": FG = 0:GOTO 310
+
+316 IF FG = 1 THEN NUM$ = NUM$ (1 TO LEN (NUM$) - 1):FG = 0: GO TO 310
+
+317 IF CODE (X$) = 65 OR CODE (X$) = 13 THEN RETURN
+318 IF CODE (X$) < 48 OR CODE (X$) > 57 THEN 310
+319 NUM$ = NUM$ + X$: PRINT CHR$ (8);X$; : INVERSE=1:PRINT " ";:NORMAL=1: GOTO 310
+```
+
+Forget that...
+
+Or, just set `FG=0` at start of 310
+
+```none
+310 FG=0:PRINT CHR$ (8);: INVERSE=1:PRINT " ";:NORMAL=1:GO SUB 60:IF LEN (NUM$) > 0 AND CODE (X$) = 8 THEN PRINT X$;: PRINT" "; :PRINT X$;X$;:PRINT" ";:FG=1:IF LEN (NUM$) = 1 THEN NUM$ = "": FG = 0:GO TO 310
+```
+
+But then you get error in line 314...
+
+### 314 - error in expression 
+
+Concatenation is `&`, not `+`
+
+```none
+314 NUM$ = NUM$ + X$: PRINT CHR$ (8);X$; : INVERSE=1:PRINT " ";:NORMAL=1: GO TO 310
+```
+
+becomes
+
+```none
+314 NUM$ = NUM$ & X$: PRINT CHR$ (8);X$; : INVERSE=1:PRINT " ";:NORMAL=1: GO TO 310
+```
+
+Now the input routine is a bit stuck, due to the delete functionality. Maybe remove and use `INPUT` instead?
+
+Just need to change the Enter key code from 13 to 10
+
+```none
+312 IF CODE (X$) = 65 OR CODE (X$) = 13 THEN RETURN
+312 IF CODE (X$) = 65 OR CODE (X$) = 10 THEN RETURN
+```
+
+### 321 - error in expression
+
+No `VAL()`
+
+```none
+321 IF X = 1 AND X$ <> "A" THEN NUM = VAL (NUM$)
+321 IF X = 1 AND X$ <> "A" THEN NUM = NUM$
+...
+331 IF X = 2 AND X$ <> "A" THEN NUM = VAL (NUM$) 
+331 IF X = 2 AND X$ <> "A" THEN NUM = NUM$ 
+```
+
 ## TODO
 
  - Add lowercase - DONE!
@@ -906,7 +997,8 @@ Perfect!
  - Make 2 versions, scrolling, and full screen
  - how to full screen? `MODE`
  - How to PRINT AT?  `AT y,x:PRINT"HI"`
- - As per CP/M version, need to draw cargo and market prices together – or redraw cargo, before market prices (after any: price shock; temple donation; others?; etc.)
+ - As per CP/M version, need to draw cargo and market prices together – or redraw cargo, before market prices (after any: price shock; temple donation; others?; etc.) - DONE!
+ - The market prices need to be redisplayed after buying and selling?
 
 ## Conclusion
 
