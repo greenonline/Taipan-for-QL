@@ -34,6 +34,18 @@ Note: <kbd>CTRL</kbd>+<kbd>SPACE</kbd> to `BREAK`
 
  - [QL vs Spectrum](https://misterspectrum.com/QLSuperBASIC.html)
 
+### Related repos
+
+ - [!!!NOT!!! TRS80Taipan](https://github.com/greenonline/TRS80Taipan)
+ - [MMBASICTaipan](https://github.com/greenonline/MMBASICTaipan)
+ - [MacTaipan](https://github.com/greenonline/MacTaipan)
+ - [Taipan_40_Column_Apple_II](https://github.com/greenonline/Taipan_40_Column_Apple_II)
+ - [CommanderX16Taipan](https://github.com/greenonline/CommanderX16Taipan)
+ - [BBCTaipan](https://github.com/greenonline/BBCTaipan)
+ - [PETTaipan](https://github.com/greenonline/PETTaipan)
+ - [CP/MTaipan](https://github.com/greenonline/Taipan-for-CP-M)
+
+
 ## Longstanding issues with the original Apple II code
 
  - Unassigned variables
