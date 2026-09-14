@@ -34,30 +34,31 @@ Note: <kbd>CTRL</kbd>+<kbd>SPACE</kbd> to `BREAK`
 
  - [QL vs Spectrum](https://misterspectrum.com/QLSuperBASIC.html)
 
-## Issues
+## Longstanding issues with the original Apple II code
 
  - Unassigned variables
- - `K=1` in line 791 superfluous
+ - `K=1` in line 791 is superfluous
 
  
-```none
-785 REM EVENTS SUBROUTINE (790-851)
-790 IF K = 1 THEN RETURN
-791 K=1:X = 50 + INT ( RND (1) * 100) + 1: GN = INT ( RND (1) * 3) +1:XP = (X + (GN * 50)) * 100:IF C < XP OR RND (1) < .75 THEN GOTO 805
-792 GOSUB 1340: VTAB= 12:PRINT " A BROKER OFFERS TO TAKE YOUR": PRINT "VESSEL IN TRADE FOR ONE WITH":PRINT GN + G;" GUNS & ";X + MW;" CAPACITY"
-```
+    ```none
+    785 REM EVENTS SUBROUTINE (790-851)
+    790 IF K = 1 THEN RETURN
+    791 K=1:X = 50 + INT ( RND (1) * 100) + 1: GN = INT ( RND (1) * 3) +1:XP = (X + (GN * 50)) * 100:IF C < XP OR RND (1) < .75 THEN GOTO 805
+    792 GOSUB 1340: VTAB= 12:PRINT " A BROKER OFFERS TO TAKE YOUR": PRINT "VESSEL IN TRADE FOR ONE WITH":PRINT GN + G;" GUNS & ";X + MW;" CAPACITY"
+    ```
 
-should be
+    should be
 
-```none
-785 REM EVENTS SUBROUTINE (790-851)
-790 IF K = 1 THEN RETURN
-791 X = 50 + INT ( RND (1) * 100) + 1: GN = INT ( RND (1) * 3) +1:XP = (X + (GN * 50)) * 100:IF C < XP OR RND (1) < .75 THEN GOTO 805
-792 GOSUB 1340: VTAB= 12:PRINT " A BROKER OFFERS TO TAKE YOUR": PRINT "VESSEL IN TRADE FOR ONE WITH":PRINT GN + G;" GUNS & ";X + MW;" CAPACITY"
-```
+    ```none
+    785 REM EVENTS SUBROUTINE (790-851)
+    790 IF K = 1 THEN RETURN
+    791 X = 50 + INT ( RND (1) * 100) + 1: GN = INT ( RND (1) * 3) +1:XP = (X + (GN * 50)) * 100:IF C < XP OR RND (1) < .75 THEN GOTO 805
+    792 GOSUB 1340: VTAB= 12:PRINT " A BROKER OFFERS TO TAKE YOUR": PRINT "VESSEL IN TRADE FOR ONE WITH":PRINT GN + G;" GUNS & ";X + MW;" CAPACITY"
+    ```
 
  - The destinations should be in two columns. However, Apple nor CP/M do. Nor BBC? 
    - Nope, destination is only two column for the records. Maybe two column should also be used for embarking?
+ - Should change temple donation prompt to "Y = Yes", as any other key is a no.
 
 
 #### Reserved variable names?
@@ -857,6 +858,8 @@ to become:
 does the trick!
 
 [![Final fix][4]][4]
+
+Just the `CHR$(133)` needs fixing, really. Find a block character in the QL character set? Is there one?
 
 
 ## TODO
